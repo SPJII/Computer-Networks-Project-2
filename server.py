@@ -76,7 +76,8 @@ def handle_client(sock: socket.socket, addr) -> None:
                     continue
 
                 # create session
-                session = ClientSession(username=username, sock=sock, writer=wfile)
+                session = ClientSession(
+                    username=username, sock=sock, writer=wfile)
                 clients[username] = session
 
                 # auto-join lobby
@@ -144,7 +145,8 @@ def handle_client(sock: socket.socket, addr) -> None:
             elif cmd == "POST":
                 # POST <group> <subject>|<body>
                 if not arg1 or not arg2:
-                    send_err(session, "BAD_ARGS", "POST <group> <subject>|<body>")
+                    send_err(session, "BAD_ARGS",
+                             "POST <group> <subject>|<body>")
                 else:
                     cmd_post(session, arg1, arg2)
 
@@ -205,7 +207,7 @@ def main() -> None:
     This is also where you'd tweak the port / group names.
     """
     host = "0.0.0.0"
-    port = 5000
+    port = 5055
 
     # Pre-create the 5 groups (Part 2 requirement).
     initial_groups = ["lobby", "games", "cs", "random", "music"]
@@ -228,7 +230,7 @@ def main() -> None:
             t = threading.Thread(
                 target=handle_client,
                 args=(client_sock, addr),
-                daemon=True, 
+                daemon=True,
             )
             t.start()
 
