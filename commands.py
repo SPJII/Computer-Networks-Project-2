@@ -14,6 +14,7 @@ from state import (
 
 # --- Small local helpers ---
 
+
 def parse_subject_body(payload: str):
     """
     Parse 'subject|body'.
@@ -139,7 +140,8 @@ def cmd_post(session: ClientSession, group_name: str, payload: str) -> None:
     """
     group_name = group_name.strip()
     if not group_name:
-        send_err(session, "BAD_ARGS", "POST requires a group name and subject|body")
+        send_err(session, "BAD_ARGS",
+                 "POST requires a group name and subject|body")
         return
 
     subject, body = parse_subject_body(payload)

@@ -1,9 +1,13 @@
 # Multi-Group Bulletin Board Server – Protocol & Client Guide
 
+Project 2:  Simple Bulletin Board Using Socket Programming
+Team: Tessneem Khalil, Steven Jones II, Salwa Syed
+
 This repo contains the **server** for our TCP bulletin board project.  
 
 This document explains:
 - how to run the server
+- how to run the client
 - how the wire protocol works
 - what commands your client can send
 - what responses and events to expect
@@ -23,10 +27,50 @@ The server code is split up for readability:
 - `state.py` – global state, locks, logging, send helpers
 - `commands.py` – protocol command handlers (POST, GET, etc.)
 - `server.py` – TCP listener, per-client handler, command routing
+- `client.py` - user-facing CLI client using %commands
+- `README.md` - documentation
+- `Makefile`
 
 ### Start the server
 
-From inside the repo directory run server.py
+From inside the repo directory run: python3 server.py
+
+### Running the Client
+
+to start the interactive client: python3 client.py
+
+Example usage:
+
+- %connect localhost 5055
+- %user alice
+- %post Hello|This is a message
+- %users
+
+
+(The client prints all OK, ERR, and EVENT responses from the server in real time)
+
+### Client Usability Commands
+
+Basic connection
+%connect <host> <port>
+%user <username>
+%exit
+
+Part 1: Public message board
+%join
+%post <subject>|<body>
+%users
+%message <id>
+%leave
+
+Part 2: Multiple private groups
+%groups
+%groupjoin <group>
+%grouppost <group> <subject>|<body>
+%groupusers <group>
+%groupleave <group>
+%groupmessage <group> <id>
+%history <group> <N>
 
 ### How it works
 The server speaks a simple text protocol over TCP:
@@ -43,7 +87,6 @@ The server can send two kinds of lines:
 Synchronous replies that start with OK or ERR
 
 Asynchronous events that start with EVENT
-(e.g. other users joining, new messages)
 
 ### What commands your client can send
 
@@ -91,7 +134,7 @@ OK LOBBY_USERS user1,user2
 
 OK HISTORY_END cs
 
-OK BYE (after QUIT)
+OK BYE 
 
 # (2)
 ### ERR responses (errors)
@@ -112,3 +155,24 @@ ERR NOT_IN_GROUP cs
 ERR BAD_ARGS POST requires a group name and subject|body
 
 ERR BAD_MESSAGE_ID 999
+
+### Design Notes 
+
+- The server is multithreaded: one thread per client using TCP sockets
+
+- Shared state (clients, groups, message IDs) is protected with a global threading.Lock
+
+- Users are automatically added to the lobby after USER
+
+- The client is interactive and uses a background receiving thread to display events live
+
+- All networking uses pure socket programming with no third-party libraries
+
+- Messages are stored in memory only 
+
+### Limitations
+- No password authentication
+
+- Message history is not persistent across server restarts
+
+- Server does not validate message size beyond Python string limits
